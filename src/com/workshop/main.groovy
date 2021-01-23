@@ -8,10 +8,13 @@ def main(script) {
   // Object initialization
   c = new Config()
 
+  // Initialize Stages Object
   sprebuild = new prebuild()
   sbuild = new build()
   spostbuild = new postbuild()
-  
+  sdeploy = new deploy()
+  spostdeploy = new postdeploy()
+
   // Pipeline specific variable get from injected env
   // Mandatory variable will be check at details & validation steps
   def repository_name = ("${script.env.repository_name}" != "null") ? "${script.env.repository_name}" : ""
@@ -24,8 +27,11 @@ def main(script) {
   // Initialize docker tools
   def dockerTool = tool name: 'docker', type: 'dockerTool'
 
-  // Have default value
+  // Have default value for docker registry
   def docker_registry = ("${script.env.docker_registry}" != "null") ? "${script.env.docker_registry}" : "${c.default_docker_registry}"
+
+  // Timeout for Healtcheck
+  def timeout_hc = (script.env.timeout_hc != "null") ? script.env.timeout_hc : 10
 
   // Pipeline object
   p = new Pipeline(
@@ -36,7 +42,8 @@ def main(script) {
     app_port,
     pr_num,
     dockerTool,
-    docker_registry
+    docker_registry,
+    timeout_hc
   )
 
   ansiColor('xterm') {
@@ -57,13 +64,13 @@ def main(script) {
       spostbuild.merge(p)
     }
 
-    //stage('Deploy') {
-        // TODO: Call deploy function
-    //}
+    stage('Deploy') {
+      sdeploy.deploy(p)
+    }
 
-    //stage('Service Healthcheck') {
-        // TODO: Call healthcheck function
-    //}
+    stage('Service Healthcheck') {
+      spostdeploy.healthcheck(p)
+    }
   }
 }
  
