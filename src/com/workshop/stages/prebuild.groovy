@@ -37,7 +37,7 @@ def validation(Pipeline p) {
 def checkoutBuildTest(Pipeline p) {
    c = new Config()
  
-   withCredentials([usernamePassword(credentialsId: 'github-personal', passwordVariable: 'git_token', usernameVariable: 'git_username')]) {
+   withCredentials([usernamePassword(credentialsId: 'github-dimaskiddo', passwordVariable: 'git_token', usernameVariable: 'git_username')]) {
        println "============\u001b[44mCommencing PR Checkout\u001b[0m============"
        println "\u001b[36mChecking out from : \u001b[0mpull/${p.pr_num}/head:pr/${p.pr_num}..."
        git branch: "${p.branch_name}", url: "https://github.com/${p.git_user}/${p.repository_name}.git"
